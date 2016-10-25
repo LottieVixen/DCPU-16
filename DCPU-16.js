@@ -1,11 +1,21 @@
-var MEM = [0x00,//---------------- NOP
+//Init memory regs etc
+memArray = new ArrayBuffer((2*10000)); //10k words at 16 bit each, ArrayBuffer(N), where N is bytes, hence 2 multiplier
+MEM = new Int16Array(memArray); //view arraybuffer, seperate into 16 bits per index.
+//end init
+//*
+var memVals = [0x00,//---------------- NOP
            0x01,0x01,0x05,//-- MOV B, 5
            0x01,0x02,0x01,//-- MOV C, 1
            0x02,0x00,0x02,//-- ADD A, C
            0x05,0x00,0x01,//-- IFE A, B
-           0x04,0x07,//--------- JMP 1
+           //0x04,0x07,//--------- JMP 1
            0x00,//---------------- NOP/\SKIPED
            0x00];//--------------- NOP
+//*/
+memVals.forEach((function(val,i,_){
+	MEM[i] = val;
+}))
+
 var PC = 0;
 var registers = {
 	A : 0,
