@@ -3,14 +3,14 @@ memArray = new ArrayBuffer((2*10000)); //10k words at 16 bit each, ArrayBuffer(N
 MEM = new Int16Array(memArray); //view arraybuffer, seperate into 16 bits per index.
 //end init
 //*
-var memVals = [0x00,//---------------- NOP
-           0x01,0x01,0x05,//-- MOV B, 5
-           0x01,0x02,0x01,//-- MOV C, 1
-           0x02,0x00,0x02,//-- ADD A, C
-           0x05,0x00,0x01,//-- IFE A, B
-           0x04,0x0F,//--------- JMP 1
-           0x00,
-           0x04,0x0F]; //JMP to mem end
+var memVals = [0x00,//---------------- NOP 0
+           0x01,0x01,0x05,//-- MOV B, 5 1-2-3
+           0x01,0x02,0x01,//-- MOV C, 1 4-5-6
+           0x02,0x00,0x02,//-- ADD A, C 7-8-9
+           0x05,0x00,0x01,//-- IFE A, B A-B-C
+           //0x04,0x0F,//--------- JMP 1  D-E-F
+           0x00,                 // 10
+           0x04,0xFF]; //JMP to mem end
 //*/
 memVals.forEach((function(val,i,_){
 	MEM[i] = val;
