@@ -1,16 +1,18 @@
 //Init memory regs etc
-memArray = new ArrayBuffer((2*10000)); //10k words at 16 bit each, ArrayBuffer(N), where N is bytes, hence 2 multiplier
+memArray = new ArrayBuffer((2*65536)); //10k words at 16 bit each, ArrayBuffer(N), where N is bytes, hence 2 multiplier
 MEM = new Int16Array(memArray); //view arraybuffer, seperate into 16 bits per index.
 //end init
 //*
 var memVals = [0x00,//---------------- NOP 0
-           0x01,0x01,0x05,//-- MOV B, 5 1-2-3
-           0x01,0x02,0x01,//-- MOV C, 1 4-5-6
-           0x02,0x00,0x02,//-- ADD A, C 7-8-9
-           0x05,0x00,0x01,//-- IFE A, B A-B-C
-           //0x04,0x0F,//--------- JMP 1  D-E-F
-           0x00,                 // 10
-           0x04,0xFF]; //JMP to mem end
+           0x01,0x01,0x05,//-- MOV B, 5 
+           0x01,0x02,0x01,//-- MOV C, 1 
+           0x02,0x00,0x02,//-- ADD A, C 
+           0x05,0x00,0x01,//-- IFE A, B 
+           //0x04,0x0F,//--------- JMP 1 
+           0x00,
+           0x00,
+           0x00,                 
+           0x04,0x1C,0x0D]; //SET PC 13
 //*/
 memVals.forEach((function(val,i,_){
 	MEM[i] = val;
@@ -66,9 +68,11 @@ var opcodes = {
         var r = operands[fetch()];
         registers[R] = registers[R] - registers[r];
     },
-    0x04 : function jmp(){ //-- JMP addr
+    0x04 : function set(){ //-- JMP addr
         var addr = fetch();
-        registers['PC'] = parseInt(addr,16);
+        var R = operands[fetch()];
+        var r = operands[fetch()];
+        registers[R] = registers[r];
     },
     0x05 : function ife(){ //-- IFE R, r
         var R = registers[operands[fetch()]];
@@ -79,13 +83,14 @@ var opcodes = {
 };
 
 var d2h = function(d) {
-	return '0x'+('00'+d.toString(16)).substr(-2).toUpperCase();
+	return '0x'+('0000'+d.toString(16)).substr(-4).toUpperCase();
 }
 
 
 var FDX = function() {
 	console.log('PC    IR   A    B    C')
-	while (registers['PC'] < (MEM.length)){
+	//while (registers['PC'] < (MEM.length)){
+	while (true){
 		var IR = fetch();
 		//PC += 1;
 		opcodes[IR]();
