@@ -8,15 +8,15 @@ var memVals = [0x00,//---------------- NOP
            0x01,0x02,0x01,//-- MOV C, 1
            0x02,0x00,0x02,//-- ADD A, C
            0x05,0x00,0x01,//-- IFE A, B
-           //0x04,0x07,//--------- JMP 1
-           0x00,//---------------- NOP/\SKIPED
-           0x00];//--------------- NOP
+           0x04,0x0F,//--------- JMP 1
+           0x00,
+           0x04,0x0F]; //JMP to mem end
 //*/
 memVals.forEach((function(val,i,_){
 	MEM[i] = val;
 }))
 
-var PC = 0;
+//var PC = 0;
 var registers = {
 	A : 0,
 	B : 0,
@@ -25,7 +25,8 @@ var registers = {
 	Y : 0,
 	Z : 0,
 	I : 0,
-	J : 0
+	J : 0,
+	PC: 0
 };
 
 var operands = {
@@ -37,12 +38,13 @@ var operands = {
 	0x05 : 'Z',
 	0x06 : 'I',
 	0x07 : 'J',
-	0x08 : MEM[registers['A']]
+	0x08 : MEM[registers['A']],
+	0x1c : 'PC'
 }
 
 var fetch = function() {
-	let A = MEM[PC];
-	PC+=1;
+	let A = MEM[registers['PC']];
+	registers['PC']+=1;
 	return A;
 }
 
@@ -66,13 +68,13 @@ var opcodes = {
     },
     0x04 : function jmp(){ //-- JMP addr
         var addr = fetch();
-        PC = parseInt(addr,16);
+        registers['PC'] = parseInt(addr,16);
     },
     0x05 : function ife(){ //-- IFE R, r
         var R = registers[operands[fetch()]];
         var r = registers[operands[fetch()]];
         //PC = (R == r) and PC + 3 or PC
-        if (R == r) PC += 3
+        if (R == r) {registers['PC'] += 3;}
     }
 };
 
@@ -83,12 +85,12 @@ var d2h = function(d) {
 
 var FDX = function() {
 	console.log('PC    IR   A    B    C')
-	while (PC < (MEM.length)){
+	while (registers['PC'] < (MEM.length)){
 		var IR = fetch();
 		//PC += 1;
 		opcodes[IR]();
 		//('000000000000000' + i.toString(16)).substr(-16)
-		console.log(d2h(PC)+'  '+d2h(IR)+' '+d2h(registers['A'])+' '+d2h(registers['B'])+' '+d2h(registers['C']));
+		console.log(d2h(registers['PC'])+'  '+d2h(IR)+' '+d2h(registers['A'])+' '+d2h(registers['B'])+' '+d2h(registers['C']));
 	};
 };
 FDX();
