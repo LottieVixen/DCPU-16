@@ -36,7 +36,7 @@ var setReg = function(R,val){
 //*
 var memVals = [0x01,0x00,0x1F, //SET A, NEXTWORD(Literal)
 			   0x21,           //literal 1
-               0x01,0x1C,0x21  // SET PC 0(literal) //aka goto 0x00
+               0x01,0x1C,0x20  // SET PC 0(literal) //aka goto 0x00
                ];
 //*/
 memVals.forEach((function(val,i,_){
