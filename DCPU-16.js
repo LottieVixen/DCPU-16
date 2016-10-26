@@ -3,7 +3,7 @@ memArray = new ArrayBuffer((2*65536)); //10k words at 16 bit each, ArrayBuffer(N
 MEM = new Int16Array(memArray); //view arraybuffer, seperate into 16 bits per index.
 //end initmem
 //init registers
-regArray = new ArrayBuffer((2*0x1d)); //8 registers, 2 bytes each
+regArray = new ArrayBuffer((2*0x1D)); //8 registers, 2 bytes each
 registers = new Int16Array(regArray); 
 register = {
 A:registers[0x00],//'A'
@@ -34,8 +34,9 @@ var setReg = function(R,val){
 };
 
 //*
-var memVals = [0x01,0x00,0x01,
-               0x01,0x1C,0x00  // SET PC 0 //aka goto 0x00
+var memVals = [0x01,0x00,0x1F, //SET A, NEXTWORD(Literal)
+			   0x22,           //literal 1
+               0x01,0x1C,0x21  // SET PC 0(literal) //aka goto 0x00
                ];
 //*/
 memVals.forEach((function(val,i,_){
@@ -58,7 +59,14 @@ var opcodes = {
 	0x01 : function SET(){//SET R, r
 		var R = fetch();
 		var r = fetch();
-		setReg(R,r);
+		if (r == 0x1E){
+			var o = MEM[fetch()];
+		}else if(r == 0x1F){
+			var o = fetch() - 0x21;
+		}else{
+			var o = r - 0x21; //literals
+		}
+		setReg(R,o);
 	},
 	0x02 : function ADD(){//ADD R,r
 		var R = fetch();
