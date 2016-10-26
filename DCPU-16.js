@@ -35,7 +35,7 @@ var setReg = function(R,val){
 
 //*
 var memVals = [0x01,0x00,0x1F, //SET A, NEXTWORD(Literal)
-			   0x22,           //literal 1
+			   0x21,           //literal 1
                0x01,0x1C,0x21  // SET PC 0(literal) //aka goto 0x00
                ];
 //*/
@@ -64,7 +64,7 @@ var opcodes = {
 		}else if(r == 0x1F){
 			var o = fetch() - 0x21;
 		}else{
-			var o = r - 0x21; //literals
+			var o = r - 0x20; //literals
 		}
 		setReg(R,o);
 	},
