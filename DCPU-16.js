@@ -6,24 +6,24 @@ MEM = new Int16Array(memArray); //view arraybuffer, seperate into 16 bits per in
 regArray = new ArrayBuffer((2*0x1D)); //8 registers, 2 bytes each
 registers = new Int16Array(regArray); 
 register = {
-A:registers[0x00],//'A'
-B:registers[0x01],//'B'
-C:registers[0x02],//'C'
-X:registers[0x03],//'X'
-Y:registers[0x04],//'Y'
-Z:registers[0x05],//'Z'
-I:registers[0x06],//'I'
-J:registers[0x07],//'J'
-mA:MEM[registers[0x00]],
-mB:MEM[registers[0x01]],
-mC:MEM[registers[0x02]],
-mX:MEM[registers[0x03]],
-mY:MEM[registers[0x04]],
-mZ:MEM[registers[0x05]],
-mI:MEM[registers[0x06]],
-mJ:MEM[registers[0x07]],
-PC:registers[0x1C],//'PC'
-EX:registers[0x1D]//'EX'
+A:registers[0x00],//'A'   0x00
+B:registers[0x01],//'B'   0x01
+C:registers[0x02],//'C'   0x02
+X:registers[0x03],//'X'   0x03
+Y:registers[0x04],//'Y'   0x04
+Z:registers[0x05],//'Z'   0x05
+I:registers[0x06],//'I'   0x06
+J:registers[0x07],//'J'   0x07
+mA:MEM[registers[0x00]],//0x08
+mB:MEM[registers[0x01]],//0x09
+mC:MEM[registers[0x02]],//0x0A
+mX:MEM[registers[0x03]],//0x0B
+mY:MEM[registers[0x04]],//0x0C
+mZ:MEM[registers[0x05]],//0x0D
+mI:MEM[registers[0x06]],//0x0E
+mJ:MEM[registers[0x07]],//0x0F
+PC:registers[0x1C],//'PC' 0x1C
+EX:registers[0x1D]//'EX'  0x1D
 };
 
 var getReg = function(R){
@@ -59,12 +59,18 @@ var opcodes = {
 	0x01 : function SET(){//SET R, r
 		var R = fetch();
 		var r = fetch();
-		if (r == 0x1E){
-			var o = MEM[fetch()];
-		}else if(r == 0x1F){
-			var o = fetch() - 0x21;
-		}else{
-			var o = r - 0x21; //literals
+		if (r => 0x1E){ //if above mem range
+			if (r == 0x1E){
+				var o = MEM[fetch()];
+			}else if(r == 0x1F){
+				var o = fetch() - 0x21;
+			}else{
+				var o = r - 0x21; //literals
+			}
+		} else if ((r<0x10)&&(r>0x07)){//if in memory range
+			var o = MEM[(r-0x08)];
+		} else { // if 0x00 to 0x07 aka registers!
+            var o = getReg(r);
 		}
 		setReg(R,o);
 	},
