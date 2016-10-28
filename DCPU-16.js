@@ -50,6 +50,22 @@ var fetch = function() {
 	return A;
 }
 
+function checkForNextWord(r){
+	if (r => 0x1E){ //if above mem range
+			if (r == 0x1E){
+				return MEM[fetch()];
+			}else if(r == 0x1F){
+				return fetch() - 0x21;
+			}else{
+				return r - 0x21; //literals
+			}
+		} else if ((r<0x10)&&(r>0x07)){//if in memory range
+			return MEM[(r-0x08)];
+		} else { // if 0x00 to 0x07 aka registers!
+            return getReg(r);
+		}
+}
+
 var d2h = function(d) {
 	return '0x'+('0000'+d.toString(16)).substr(-4).toUpperCase();
 }
@@ -59,24 +75,13 @@ var opcodes = {
 	0x01 : function SET(){//SET R, r
 		var R = fetch();
 		var r = fetch();
-		if (r => 0x1E){ //if above mem range
-			if (r == 0x1E){
-				var o = MEM[fetch()];
-			}else if(r == 0x1F){
-				var o = fetch() - 0x21;
-			}else{
-				var o = r - 0x21; //literals
-			}
-		} else if ((r<0x10)&&(r>0x07)){//if in memory range
-			var o = MEM[(r-0x08)];
-		} else { // if 0x00 to 0x07 aka registers!
-            var o = getReg(r);
-		}
-		setReg(R,o);
+		r = checkForNextWord(r);
+		setReg(R,r);
 	},
 	0x02 : function ADD(){//ADD R,r
 		var R = fetch();
 		var r = fetch();
+		r = checkForNextWord(r);
 		setReg(R,getReg(R)+getReg(r));
 	}
 };
